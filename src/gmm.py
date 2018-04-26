@@ -1,10 +1,8 @@
-import pyro
 import numpy as np
 import numpy.random as npr
 import torch
 from torch.autograd import Variable
 import torch.nn.functional as F
-from torch.distributions.multivariate_normal import MultivariateNormal
 import matplotlib.pyplot as plt
 import theano as th
 import theano.tensor as tt
