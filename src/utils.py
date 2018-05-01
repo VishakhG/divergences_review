@@ -1,10 +1,9 @@
 import numpy as np
-import pandas as pd
 import seaborn as sns
-import matplotlib.pyplot as  plt
 from scipy.stats import multivariate_normal
 import torch
 import torch.nn as nn
+import matplotlib.pyplot as plt
 
 
 def ravel(params):
@@ -16,8 +15,9 @@ def ravel(params):
     """
     return np.hstack(p.get_value().ravel() for p in params)
 
+
 def plot_density_data(pdf, data, xmin=-5, xmax=7, ymin=-5, ymax=7):
-   
+
     xx, yy = np.meshgrid(
         np.linspace(xmin, xmax, 200),
         np.linspace(ymin, ymax, 200))
@@ -25,10 +25,9 @@ def plot_density_data(pdf, data, xmin=-5, xmax=7, ymin=-5, ymax=7):
     grid = np.asarray([xx.ravel(), yy.ravel()]).T
 
     zz = np.exp(pdf(grid))
-    
     zz = zz.reshape(xx.shape)
-
-    hh, x, y = np.histogram2d(data[:,0], data[:,1], 80, range=[(xmin, xmax), (ymin, ymax)])
+    hh, x, y = np.histogram2d(data[:, 0], data[:, 1], 80,
+                              range=[(xmin, xmax), (ymin, ymax)])
 
     sns.set_style('whitegrid')
     sns.set_style('ticks')
@@ -46,9 +45,8 @@ def pdf_normal(mu, cov):
     def pdf(X):
         var = multivariate_normal(mean=mu, cov=cov)
         return var.pdf(X)
-    
-    return pdf
 
+    return pdf
 
 
 class Generator(nn.Module):
@@ -59,10 +57,10 @@ class Generator(nn.Module):
         self.mu = nn.Parameter(torch.Tensor(mu))
 
         self.std = nn.Parameter(torch.Tensor(std))
-    
+
     def get_params(self):
         return self.mu, self.std
-        
+
     def forward(self, z):
 
         output = self.mu * z + self.std

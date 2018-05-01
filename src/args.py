@@ -1,4 +1,5 @@
 import argparse
+# Common arguments for the various train loops
 
 
 def get_args(gan_type=None):
@@ -12,8 +13,9 @@ def get_args(gan_type=None):
     parser.add_argument("--lr", type=int, default=0.0001)
 
     if gan_type == 'FGAN':
-        parser.add_argument("--divergence_type", type=str, default='REVERSE_KL')
-        
+        parser.add_argument("--divergence_type",
+                            type=str, default='REVERSE_KL')
+
     args = parser.parse_args()
 
     return args
