@@ -1,10 +1,9 @@
 <!doctype html>
 <meta charset="utf-8">
 <script src="https://distill.pub/template.v1.js"></script>
-
 <script type="text/front-matter">
-title: "Article Title"
-description: "Description of the post"
+title: "Organizing the landscape of deep generative models"
+description: "A review on generative modeling and probability distances"
 authors:
 - Vishakh Gopu: vishakh.me
 affiliations:
@@ -26,39 +25,36 @@ src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/MathJax.js?config=TeX-
 
 <dt-article class="centered">
 <h1>Organizing the landscape of deep generative models</h1>
+<h2>A review on modeling, learning, and distances between distributions</h2>
 <dt-byline></dt-byline>
 
 
 <h2> Motivation </h2>
 <p>
-
- Over the past few years a plethora of generative models have been introduced
-and it can be difficult to see how they all fit together.
-The objective of this post is to review the underlying characteristics of a
-generative modeling approach instead of any specific model itself.
-Any  <i>specific</i> approach can then be
-seen as the consequence of a series of decisions along certain axes
-that lead to these characteristics.
+    Over the past few years a plethora of generative models have been introduced and it can be difficult to see how they all relate to each other.
+    The objective of this post is to review the underlying characteristics of a
+    generative modeling approach instead of any specific model itself.
+    Any  <i>specific</i> approach can then be
+    seen as the consequence of a series of decisions along certain axes leading to those characteristics.
 </p>
 
 <p>
-From this vantage point its easier to tailor the approach for the application at hand
-as a practitioner, and to see natural extensions to explore as a researcher.
+    From this vantage point it's easier to tailor the modeling approach to the application at hand for a practitioner and to see natural connections to explore for a researcher.
 </p>
 
 <h2>Introduction</h2>
 <p>
-Generative modeling is the task of learning a model from data that we
-can sample new points from. This often translates into learning a
-probability distribution that is close to some real data distribution
-from which we have access to samples. In recent years deep neural networks
-have been leveraged to amortize inference across observed data
-in latent variable models, sample new points via flexible implicit
-models and more.
+    Generative modeling is the task of learning a model from data that we
+    can sample new points from. This often translates into learning a
+    probability distribution that is close to some real data distribution
+    from which we have access to samples. In recent years deep neural networks
+    have been leveraged to amortize inference across observed data
+    in latent variable models, sample new points via flexible implicit
+    models and more.
 </p>
 
 <p>Phrasing the task more formally as done in
-<dt-cite key="bottou_geometry"> Bottou et al </dt-cite>:
+<dt-cite key="bottou_geometry"> Bottou et al. </dt-cite>:
 </p>
 
 <blockquote class="l-body" style="border: 2px solid #666; padding: 10px; background-color: #ccc;">
@@ -77,101 +73,94 @@ is to find $$\min_{\theta}L(\theta)=D(Q, P_{\theta})$$
 </blockquote>
 
 <p>
-Organizing the landscape of deep generative modeling approaches is
-a daunting task, but we can start by stating some high level
-delineating attributes.
+    Organizing the landscape of deep generative modeling approaches is
+    a daunting task, but we can begin by stating some high level
+    delineating attributes.
 </p>
 
 <ol>
 <li>
-<b>The model</b>
-How the parameterized family of distributions $P_{\theta}$ and any other
-auxiliary models are represented.
+<b>The model:</b>
+    How the parameterized family of distributions $P_{\theta}$ and any other
+    auxiliary models are represented.
 </li>
 
 <li>
-<b>The principle of learning</b>
-How to bring the distribution defined by our generative model closer
-to the true data generating distribution:
-$\min_{\theta}L(\theta)=D(Q, P_{\theta})$. This is often very closely
-tied with the choice of model.
+<b>The principle of learning:</b>
+    How to bring the distribution defined by our generative model closer
+    to the true data generating distribution:
+    $\min_{\theta}L(\theta)=D(Q, P_{\theta})$. This is often very closely
+    tied with the choice of model.
 </li>
 
 <li>
-<b>The underlying distance/divergence</b>
-What measure $D(Q, P_{\theta})$ is being minimized. Often the consequence
-of the model or principle of learning.
+<b>The underlying distance/divergence:</b>
+    What measure $D(Q, P_{\theta})$ that is being minimized. Often the consequence
+    of the model or principle of learning.
 </li>
 </ol>
 
 <p>
-Many popular deep generative models in use today can be indexed by how they express these attributes. These categories are often very intertwined, modeling choice might also fix the techniques that are available for learning, for instance.
-There are also many other factors that can be used to compare different
-approaches to each other. Despite these shortcomings, It's a reasonable way to try and start
-organizing the landscape of deep generative models.
+    Many popular deep generative models in use today can be indexed by how they fall along these axes. The categories are often very intertwined; a modeling choice might also fix the techniques that are available for learning or vice versa.
+    There are also many other factors that can be used to compare different
+    approaches to each other. Despite these shortcomings, It's a reasonable way to try and start organizing the landscape of deep generative models.
 </p>
 
 <p>
-In this review we will take a look at each of these attributes in turn and the different
-choices that can be made under each of them. We will also provide specific examples of approaches
-that make a respective choice to give an idea of how practical incarnations of these choices look like.
+    In this review we will take a look at each of these attributes in turn and the different choices that can be made under each of them. We will also provide specific examples of approaches that make these choices to give an idea of how things unfold in practice.
 </p>
 
 <p>
-We will pay special attention to (3) and discuss how different choices of divergence/distance
-impact the final learned model and how different measures of $D$ relate to each other.
-We will also discuss downstream applications of deep generative modeling, and what
-desiderata we may have for each task. Finally we will examine how different choices of $D$ meet those desiderata.
+    We will pay special attention to (3) and discuss how different choices of divergence/distance impact the final learned model and how the different measures of $D$ relate to each other.
+    We will also discuss downstream applications of deep generative modeling, and what the desiderata are for those tasks. Finally we will examine how well different choices of $D$ meet those desiderata.
 </p>
 
 <h2>The model</h2>
 <p>
-There are many different ways to model the family of distributions
-$P_{\theta}$ and any auxiliary models in the context of deep generative modeling.
-Two general categories are latent variable models and implicit models.
-Within each category there are innumerable extensions, and variations that we necessarily
-cannot cover within the scope of this post. Additionally, there are also modeling approaches
-that fall outside these categories. Since many popular models relate closely to these two
-archetypes, it makes sense to include them in our taxonomy.
+    There are many different ways to model the family of distributions
+    $P_{\theta}$ and any auxiliary models in the context of deep generative modeling.
+    Two general archetypical model classes are latent variable models and implicit models.
+</p>
+
+<p>
+Within each class there are innumerable extensions and variations left out of this post. Additionally, there are modeling approaches that fall outside these classes.
 </p>
 
 <h3>Latent variable models</h3>
-
 <p>
-Latent variable models tie observations $x \in \mathbb{R^{d_{x}}}$ with unobserved variables
-$z \in \mathbb{R^{d_{z}}}$ and model parameters $\theta \in \mathbb{R^{d_{\theta}}}$
-They typically specify a story for how a sample is generated with respect to the latent structure. The goal is to then infer the hidden structure from
-observed data.
+    Latent variable models tie observations $x \in \mathbb{R^{d_{x}}}$ with unobserved variables
+    $z \in \mathbb{R^{d_{z}}}$ and model parameters $\theta \in \mathbb{R^{d_{\theta}}}$
+
+    They typically specify a story for how a sample is generated with respect to the latent structure. The goal is to then infer the hidden structure from
+    observed data.
 </p>
 <p>
-  As you can imagine, one of the simplest instantiations of this approach would be to associate
-  a single latent variable with each data point and have a generative story :
+  One of the simplest instantiations of this approach would be to associate
+  a single latent variable with each data point and have a generative story:
   $$z \sim p(z)$$
   $$x \sim p(x|z)$$
   This is the model shown in the illustration below, and corresponds to a generative modeling approach called the variational auto-encoder <dt-cite key="rezende_stochastic"> </dt-cite>
   <dt-cite key="kingma_vae"> </dt-cite>.
 </p>
 
-<Figure style ="width:10%; margin-top:20px; margin-bottom:20px; position:relative;">
+<figure style ="width:10%; margin-top:20px; margin-bottom:20px; position:relative;">
 <img src="figures/latent_variable_model.png" border="2" >
 </figure>
 
 <h3>Implicit models</h3>
 
 <p>
-In many practical situations we may have an easy mechanism to sample new points but no explicit
-likelihood. These types of models are typically referred to as <i>implicit</i> <dt-cite key="bottou_geometry"> </dt-cite>.
+    In many practical situations there may be an easy mechanism to sample new points, or to specify how to do so, but no explicit likelihood function. These types of models are typically referred to as <i>implicit</i> <dt-cite key="bottou_geometry"> </dt-cite>.
 </p>
 
 <p>
-The type of implicit models that appear in deep generative modeling
-typically transform noise from some base distribution into a sample using a differentiable,
-parameterized map.
+    The type of implicit models that appear in deep generative modeling
+    typically transform noise from some base distribution into a sample using a differentiable, parameterized, map.
 </p>
 
 <p>
-As an example consider a mechanism to sample from the generative distribution $\mathbb{P_{g}}$. First sample a vector from some base distribution $z \sim p(z)$, next pas it through a function $g: \mathcal{Z } \to \mathcal{X}$, where g has parameters $\theta$.This seemingly simple formalism has been leveraged to much success in models like Generative Adversarial Networks
-<dt-cite key="goodfellow_gan"> </dt-cite> and its innumerable varieties. The aforementioned procedure is depicted below.
+    As an example, consider the following mechanism to sample from the generative distribution $\mathbb{P_{g}}$. First sample a vector from some base distribution $z \sim p(z)$, then next pass it through a function $g: \mathcal{Z } \to \mathcal{X}$, where $g$ has parameters $\theta$. This seemingly simple formalism has been leveraged to much success in models like Generative Adversarial Networks
+    <dt-cite key="goodfellow_gan"> </dt-cite> and its many varieties. The aforementioned procedure is depicted below.
 </p>
 
 <figure style = "margin-top:20px; margin-bottom:20px; width:10%;">
@@ -180,22 +169,16 @@ As an example consider a mechanism to sample from the generative distribution $\
 
 <h2>Principle of learning</h2>
 <p>
-It should be of no surprise that the principle of learning employed is a key property of a
-generative modeling procedure. It should be equally unsurprising that this area is incredibly
-rich and vast. Consequently there are many different specific mechanisms for
-learning in deep generative models and they are often closely related to the modeling choices made.
+    It should be of no surprise that the principle of learning employed is a key property of a generative modeling procedure. It should be equally unsurprising that this area is incredibly rich and vast. Consequently there are many different specific mechanisms for learning and they are often closely related to the modeling choices made.
 </p>
 
 <p>
-For each of the two archetypical modeling choices discussed earlier, there
-comes an accompanying preferred mechanism for learning. Many alternative approaches, as well as
- extensions and combinations exist from these two broad principles of learning.
-We follow the general exposition found in <dt-cite key="mohamed_uai"> Mohamed et al</dt-cite>
+    For each of the two archetypical modeling choices discussed earlier, there
+    comes an accompanying preferred mechanism for learning. Many alternative approaches, as well as extensions and combinations exist from these two broad principles of learning. We follow the general exposition found in <dt-cite key="mohamed_uai"> Mohamed et al</dt-cite>
 </p>
 
-
 <p>
-  For latent variable models the general principle of learning most commonly employed in the context of deep generative models is maximum likelihood estimation via variational inference.
+  For latent variable models, in the context of deep learning, the general principle of learning most commonly employed is maximum likelihood estimation via variational inference.
 </p>
 
 <h3>Maximum likelihood and variational inference</h3>
@@ -204,87 +187,81 @@ To recall the definition of a latent variable model, take
 
 $$x \in \mathbb{R^{d_{x}}}$$ $$z \in \mathbb{R^{d_z}}$$ $$\theta \in \mathbb{R^{d_{\theta}}}$$
 
-Let $\mathbb{D}$ be a dataset of $N$ elements.
-</p>
-<p>
-The likelihood of any single example under the model is then
-$$\log p_{\theta}(x)= \log \int p_{\theta}(x|z)p(z)dz$$
-
-Which in the form of an expectation is:
-
-$$\log \mathbb{E_{p(z)}}[p_{\theta}(x|z)]$$
-
-The likelihood of $D$ is then the sum of the individual likelihoods:
-
-$$\log p_{\theta}(\mathbb{D}) = \sum_{i=1}^N \log \mathbb{E}_{p(z)}[p_{\theta}(x_i|z)]$$
+Let $\mathcal{D}$ be a dataset of $N$ elements.
 </p>
 
 <p>
-Though this seems straightforward enough, it is difficult to optimize directly.
-One problem is that the $z$ is usually high dimensional in this setting and it maybe prohibitively expensive to handle the above integral.
-Additionally, $p_{\theta}(x_i|z)$ may be represented by a complex function like a neural network which has no tractable closed form.
+    The likelihood of any single example under the model is then
+    $$\log p_{\theta}(x)= \log \int p_{\theta}(x|z)p(z)dz$$
+
+    Which in the form of an expectation is:
+
+    $$\log \mathbb{E_{p(z)}}[p_{\theta}(x|z)]$$
+
+    The likelihood of $\mathcal{D}$ is then the sum of the individual likelihoods:
+
+    $$\log p_{\theta}(\mathcal{D}) = \sum_{i=1}^N \log \mathbb{E}_{p(z)}[p_{\theta}(x_i|z)]$$
 </p>
 
 <p>
-A way to deal with this is to introduce an approximate family of densities $q$ that is much easier to handle computationally and then try and approximate the true posterior $p(z|x)$
-with this family.
+    Though this seems straightforward enough, it is difficult to optimize directly.
+    One problem is that the $z$ is usually very high dimensional in this setting and it may be prohibitively expensive to handle the resulting integral.
+    Additionally, $p_{\theta}(x_i|z)$ may be represented by a complex function like a neural network which has no tractable closed form.
 </p>
 
 <p>
- Doing some manipulation shows how the introduction of this approximate density
-changes the relevant expectation
+    A way to deal with this is to introduce an approximate family of densities $q$ that is much easier to handle computationally and then try and approximate the true posterior $p(z|x)$ with this simpler family.
 </p>
 
 <p>
-$$\log_{p_{\theta}}(D) = \sum_{i=1}^N \log \mathbb{E_{p(z)}}[p_{\theta}(x_i|z)]$$
-$$\log \mathbb{E_{p(z)}}[p_{\theta}(x_i|z)]=\log \mathbb{E}_{q_i(z)}[\frac{p_{\theta}(x_i|z)p(z)}{q_i(z)}]$$
-<p>By Jensen's inequality:</p>
-$$\log \mathbb{E_{q_{i}(z)}}[\frac{p_{\theta}(x_i|z)p(z)}{q_i(z)}] \geq \mathbb{E_{q_i}(z)}[\log\frac{p_{\theta}(x_i|z)p(z)}{q_i(z)}]$$
-$$\log_{p_{\theta}}(\mathcal{D})\geq \sum_{i}^N \mathbb{E}_{q_i(z)}[\log \frac{p_{\theta}(x_i|z)p(z)}{q_i(z)}]$$
+     Doing some manipulation shows how the introduction of this approximate density
+    changes the relevant expectation from before.
 </p>
 
 <p>
-We can write:
-$$\mathbb{E}_{q_i(z)}[\log \frac{p_{\theta}(x_i|z)p(z)}{q_i(z)}] = \mathbb{E}_{q_i(z)}[\log p_{\theta}(x_i |z)] - KLD(q_i||p)$$
-Which is often referred to as the evidence lower bound or ELBO and consists of a reconstruction term $$\mathbb{E_{q_i}(z)}[log_{p_{\theta}}(x_i|z)]$$
-and a regularizer which controls how far $q_i$ strays from the prior $$KLD(q_i||p)$$
+    $$\log_{p_{\theta}}(D) = \sum_{i=1}^N \log \mathbb{E_{p(z)}}[p_{\theta}(x_i|z)]$$
+    $$\log \mathbb{E_{p(z)}}[p_{\theta}(x_i|z)]=\log \mathbb{E}_{q_i(z)}[\frac{p_{\theta}(x_i|z)p(z)}{q_i(z)}]$$
+    <p>By Jensen's inequality:</p>
+    $$\log \mathbb{E_{q_{i}(z)}}[\frac{p_{\theta}(x_i|z)p(z)}{q_i(z)}] \geq \mathbb{E_{q_i}(z)}[\log\frac{p_{\theta}(x_i|z)p(z)}{q_i(z)}]$$
+    $$\log_{p_{\theta}}(\mathcal{D})\geq \sum_{i}^N \mathbb{E}_{q_i(z)}[\log \frac{p_{\theta}(x_i|z)p(z)}{q_i(z)}]$$
 </p>
 
 <p>
-We made a tradeoff, as is often the case:
-an easier expectation to work with, in exchange for another thing to optimize.
-
-One natural way to do this optimization is to alternate between finding a good
-setting for $q$ and good model parameters, this is known as
-the variational EM algorithm. Since the way $q$ is actually represented
-depends on various factors, we will just use simplified notation and refer to the
-optimal q at any time-step for any data point as $q_{i}^*$.
-
-In the expectation step:
-$$q_i^{*}(z) = \text{argmax}_{q_i}E_{q^{*}_{i}(z)}[\log \frac{p_{\theta}(x_i|z)p(z)}{q_{i}^{*}(z)}]$$
-
-In the maximization step:
-$$\theta^{*} = \text{argmax}_{\theta}\sum_{i=1}^N \mathbb{E}_{q_i^* (z)}[\log\frac{p_{\theta}(x_i|z)p(z)}{q_{i}^{*}(z)}]$$
-
+    We can write:
+    $$\mathbb{E}_{q_i(z)}[\log \frac{p_{\theta}(x_i|z)p(z)}{q_i(z)}] = \mathbb{E}_{q_i(z)}[\log p_{\theta}(x_i |z)] - KLD(q_i||p)$$
+    Which is often referred to as the evidence lower bound or ELBO and consists of a reconstruction term $$\mathbb{E_{q_i}(z)}[log_{p_{\theta}}(x_i|z)]$$
+    and a regularizer which controls how far $q_i$ strays from the prior $$KLD(q_i||p)$$
 </p>
 
 <p>
-We could instead introduce a parametric family of densities:
-$$ q_i^*(z) = \text{argmax}_{q_i}\mathbb{E_{q_i^*(z)}}[-\mathcal{F}(x_i, z)]$$
-$$\text{argmax}_{\phi} \mathbb{E_{q_{\phi}(z|x)}}[-F_{\phi}(x_i, z)]$$
+    We made a tradeoff, as is often the case with any approximation scheme.
+    The introduction of $q$ leads to an easier expectation to work with but also results in another thing to optimize.
+
+    One natural way to do this optimization is to alternate between finding a good
+    setting for $q$ and good model parameters, which is known as
+    the variational EM algorithm. Since the way $q$ is actually represented
+    depends on various factors, we will just use simplified notation and refer to the optimal $q$s at any time-step for any data point as $q_{i}^*$.
+
+    In the (E)xpectation step:
+    $$q_i^{*}(z) = \text{argmax}_{q_i}E_{q^{*}_{i}(z)}[\log \frac{p_{\theta}(x_i|z)p(z)}{q_{i}^{*}(z)}]$$
+
+    In the (M)aximization step:
+    $$\theta^{*} = \text{argmax}_{\theta}\sum_{i=1}^N \mathbb{E}_{q_i^* (z)}[\log\frac{p_{\theta}(x_i|z)p(z)}{q_{i}^{*}(z)}]$$
+</p>
+
+<p>
+    Instead of searching over all $q$s we could instead introduce a parametric family of densities: $$ q_i^*(z) = \text{argmax}_{q_i}\mathbb{E_{q_i^*(z)}}[-\mathcal{F}(x_i, z)]$$
+    $$\text{argmax}_{\phi} \mathbb{E_{q_{\phi}(z|x)}}[-F_{\phi}(x_i, z)]$$
 </p>
 
 <p>
   The popular generative model known as the Variational Autoencoder (VAE) does exactly this.
-  <dt-cite key="rezende_stochastic"> </dt-cite> <dt-cite key="kingma_vae">s </dt-cite>.
+  <dt-cite key="rezende_stochastic"> </dt-cite> <dt-cite key="kingma_vae"> </dt-cite>
 </p>
 
 <p>
-The VAE uses the gaussian variational family $q_{\phi}$ indexed by a mean $\mu$ and a covariance $\Sigma$.
-The latent variable $z_i$ associated to a data point $x_i$ is then sampled from $\mathcal{N}(\mu_i, \Sigma_i)$
-The conditional distributions $p(x_i| z_i)$ is modeled by a neural network and
-so is the conditional distribution $p(z_i|x_i)$ which maps data points to variational
-parameters $\eta$:($\mu_i, \Sigma_i$). The loss is then $\mathbb{E}_{q_i(z)}[\log_{p_{\theta}}(x_i|z)]-KLD(q_i||p)$
+    The VAE uses the gaussian variational family $q$ indexed by a mean $\mu$ and a covariance $\Sigma$. The latent variable $z_i$ associated to a data point $x_i$ is then sampled from $\mathcal{N}(\mu_i, \Sigma_i)$
+    The conditional distributions $p(x_i| z_i)$ is modeled by a neural network and so is the conditional distribution $p(z_i|x_i)$ which maps data points to variational parameters $\eta$:($\mu_i, \Sigma_i$). The loss is then $\mathbb{E}_{q_i(z)}[\log_{p_{\theta}}(x_i|z)]-KLD(q_i||p)$
 </p>
 
 <p><u>Summary:</u></p>
@@ -298,108 +275,96 @@ Posterior sample $$z=\mathcal{N}(\eta)$$
 </blockquote>
 
 <p>
-  Some ways that have been taken to extend this approach include creating richer families
-  of approximate densities <dt-cite key="rezende_normalizing"> </dt-cite>, better stochastic optimization techniques to optimize the ELBO <dt-cite key="ranganath_bbvi"> </dt-cite>,
-  and automating variational inferennce so its use is not model specific <dt-cite key="kucukelbir_advi"> </dt-cite>.
+  Some attempts to extend this approach include positing richer families
+  of approximate densities <dt-cite key="gemici_normalizing"> </dt-cite>, better stochastic optimization techniques to optimize the ELBO <dt-cite key="rajesh_bbvi"> </dt-cite>,
+  and automating variational inference so its use is not model specific <dt-cite key="kucukelbir_advi"> </dt-cite>.
 </p>
 
 
 <p>
-For implicit models with no explicit likelihood the principle
-of learning typically employed is <i>Learning by comparison</i>.
-Will will refer to this alternatively as Comparison style learning, comparison,
-or GAN style training. <dt-cite key="goodfellow_gan"> </dt-cite>.
+    For implicit models with no explicit likelihood the principle
+    of learning typically employed is <i>learning by comparison</i>.
+    We will refer to this interchangeably as learning by comparison and GAN style training. <dt-cite key="goodfellow_gan"> </dt-cite>.
 </p>
 
 <h3> Learning by comparison</h3>
 
 <p>
-Let the data generating distribution be $p^*$,
-the approximating distribution be $q$ and our samples from $p^*$ be $D$.
+    Let the data generating distribution be $p^*$,
+    the approximating distribution be $q$, and our samples from $p^*$ be $\mathcal{D}$.
 </p>
 
 <p>
-Often we don't have access to the likelihood function $P(D|\theta)$ but
-can easily sample from our model $q_{\phi}$
-and have access to samples from the data generating distribution $p^{*}$.
-</p>
-
-<p>We are also primarily interested in cases where our sampler takes the
-form of a differentiable map from random vectors to samples:
-$f_{\phi}(z) \to X$. The function $f$ can be thought of as a deep neural network
-in this context.
+    Often we don't have access to the likelihood function $P(\mathcal{D}|\theta)$ but can easily sample from our model $q_{\phi}$
+    and have access to samples from the data generating distribution $p^{*}$.
 </p>
 
 <p>
-In this scenario our only tractable path to learning is to compare real samples
-from $p^*$ to samples from the  approximating distribution defined by the generative model.
-We can compare the difference of the two ($q - p^*$) or the ratio $\frac{q}{p^*}$.
-Lets focus on the ratio for now since it corresponds to the formulation
-popularized by Generative Adversarial Networks <dt-cite key="goodfellow_gan"> </dt-cite>.
+    We are also primarily interested in cases where our sampler takes the
+    form of a differentiable map from random vectors to samples:
+    $f_{\phi}(z) \to X$. The function $f$ can be thought of as a deep neural network in this context.
 </p>
 
 <p>
-Let the ratio of the two distributions be $r_{\phi} = \frac{q}{p^*}$ such that when $r_{\phi}$ is 1 they are identical. We can try and develop a learning procedure that attempts to
-improve $r_{\phi}$ by alternating between <i>Comparison</i> and
-<i>Estimation</i> steps.
+    In this scenario our only tractable path to learning is to compare real samples from $p^*$ to samples from the  approximating distribution defined by the generative model. We can compare the difference of the two ($q - p^*$) or the ratio $\frac{q}{p^*}$. Lets focus on the ratio for now since it corresponds to the formulation popularized by Generative Adversarial Networks <dt-cite key="goodfellow_gan"> </dt-cite>.
 </p>
 
 <p>
-In the <i> Comparison step</i> we build an auxiliary model to evaluate
-differences between observed data and generated data.
-In the <i>estimation</i> step we adjust model
-parameters accordingly. The general framework for this type of learning is as follows:
-First combine the real data and simulated data to form
-$\{\boldsymbol{x_1}..\boldsymbol{x_N}\}$.
-Next assign the real and fake samples binary labels (+1, -1) respectively, denoting their
-class membership.
-Observe that $$p^*(\boldsymbol{x})=p(\boldsymbol{x}|y=1)$$ and
-$$q(\boldsymbol{x}) = p(\boldsymbol{x}|y=-1)$$ We can now write the ratio
-as $$\frac{p^*(\boldsymbol{x})}{q(\boldsymbol{x})} =
-\frac{p(\boldsymbol{x}|y=1)}{p(\boldsymbol{x}|y=-1)}$$
-
-Using Bayes theorem to invert the conditional probabilities gives:
-$$\frac{p(y=+1|\boldsymbol{x})p(x)}{p(y=+1)} / \frac{p(y=-1|\boldsymbol{x})p(x)}{p(y=-1)}$$
-This allows us to equate $r_{\phi}$ with the class probability ratio
-$$\frac{p(y=1|x)}{p(y=-1|x)}$$
-
-Next assume a scoring function (discriminator)
-$$D_{\theta}(\boldsymbol{x}) = p(y=+1|\boldsymbol{x})$$
-
-Since we have binary labels it makes sense to use a standard Bernoulli loss:
-$$\mathcal{F}(\boldsymbol{x}, \theta, \phi) = E_{p^*(x)}[\log D_{\theta}(\boldsymbol{x})]
-+ E_{q_{\phi}}(x)[\log (1-D_{\theta}(\boldsymbol{x}))]]$$
-
-Our optimization can now be
-$$min_{\phi}max_{\theta}\mathcal{F}(\boldsymbol{x}, \theta, \phi)$$
-This naturally leads  two alternating steps with respect to either set of parameters:
-<ol>
-
-<li>
-Update $\theta$: $\nabla_{\theta} E_{p^*}(x)[\log D_{\theta}(\boldsymbol{x})]
-+ \nabla_{\theta} E_{q_{\phi}}(x)[\log(1-D_{\theta}(\boldsymbol{x}))]$
-</li>
-<li>
-Update $\phi$: $-\nabla_{\phi}E_{q(z)}
-[\log D_{\theta}(f_{\phi}(\boldsymbol{z}))]$
-</li>
-</ol>
+    Let the ratio of the two distributions be $r_{\phi} = \frac{q}{p^*}$ such that when $r_{\phi}$ is 1 they are identical. We can try and develop a learning procedure that attempts to improve $r_{\phi}$ by alternating between <i>Comparison</i> and <i>Estimation</i> steps.
 </p>
 
 <p>
-This style of learning corresponds to the approach popularized by
-generative adversarial networks in the context of deep learning, where $D_{\theta}$ is called
-the discriminator and is a neural network, and $f_{\phi}$ the generator which is itself a
-neural network.Throughout this post we may refer to GAN style training and learning by comparison alternatively. <dt-cite key="goodfellow_gan"> </dt-cite>.
+    In the <i> Comparison step</i> we build an auxiliary model to evaluate
+    differences between observed data and generated data.
+    In the <i>estimation</i> step we adjust model
+    parameters accordingly. The general framework for this type of learning is as follows:
+    First combine the real data and simulated data to form
+    $\{\boldsymbol{x_1}..\boldsymbol{x_N}\}$.
+    Next assign the real and fake samples binary labels (+1, -1) respectively, denoting their
+    class membership.
+    Observe that $$p^*(\boldsymbol{x})=p(\boldsymbol{x}|y=1)$$ and
+    $$q(\boldsymbol{x}) = p(\boldsymbol{x}|y=-1)$$ We can now write the ratio
+    as $$\frac{p^*(\boldsymbol{x})}{q(\boldsymbol{x})} =
+    \frac{p(\boldsymbol{x}|y=1)}{p(\boldsymbol{x}|y=-1)}$$
+
+    Using Bayes theorem to invert the conditional probabilities gives:
+    $$\frac{p(y=+1|\boldsymbol{x})p(x)}{p(y=+1)} / \frac{p(y=-1|\boldsymbol{x})p(x)}{p(y=-1)}$$
+    This allows us to equate $r_{\phi}$ with the class probability ratio
+    $$\frac{p(y=1|x)}{p(y=-1|x)}$$
+
+    Next assume a scoring function (discriminator)
+    $$D_{\theta}(\boldsymbol{x}) = p(y=+1|\boldsymbol{x})$$
+
+    Since we have binary labels it makes sense to use a standard Bernoulli loss:
+    $$\mathcal{F}(\boldsymbol{x}, \theta, \phi) = E_{p^*(x)}[\log D_{\theta}(\boldsymbol{x})]
+    + E_{q_{\phi}}(x)[\log (1-D_{\theta}(\boldsymbol{x}))]]$$
+
+    Our optimization can now be
+    $$\min_{\phi}\max_{\theta}\mathcal{F}(\boldsymbol{x}, \theta, \phi)$$
+    This naturally leads  two alternating steps with respect to either set of parameters:
+    <ol>
+
+    <li>
+    Update $\theta$: $\nabla_{\theta} E_{p^*}(x)[\log D_{\theta}(\boldsymbol{x})]
+    + \nabla_{\theta} E_{q_{\phi}}(x)[\log(1-D_{\theta}(\boldsymbol{x}))]$
+    </li>
+    <li>
+    Update $\phi$: $-\nabla_{\phi}E_{q(z)}
+    [\log D_{\theta}(f_{\phi}(\boldsymbol{z}))]$
+    </li>
+    </ol>
+</p>
+<p>
+    This form corresponds to the approach popularized by
+    generative adversarial networks where $D_{\theta}$ is called the discriminator and is a neural network, and $f_{\phi}$ the generator which is also a neural network.<dt-cite key="goodfellow_gan"> </dt-cite>.
 </p>
 
 <p>
-Note that We can vary $f_{\phi}$ to get different generative models. This
-choice of $f_{\phi}$ is closely related to which $D$ is minimized. It's also related to a
-class of divergences called Integral Probability Metrics
-$$M_f(p,q)= sup_{f\in \mathcal{F}}|\mathbb{E}_{p(x)}[f]- E_{q_{\theta}(x)}[f]|$$.
+    Note that we can vary $f_{\phi}$ to get different generative models. This
+    choice of $f_{\phi}$ is closely related to which $D$ is minimized. It's also related to a class of divergences called Integral Probability Metrics
+    $$M_f(p,q)= sup_{f\in \mathcal{F}}|\mathbb{E}_{p(x)}[f]- E_{q_{\theta}(x)}[f]|$$
 
-Where the $f$ in question is sometimes referred to as the critic, test function or witness.
+    Where the $f$ in question is sometimes referred to as the critic, test function or witness.
 <dt-cite key="mohamed_uai"> Mohamed et al</dt-cite>
 </p>
 
@@ -407,69 +372,62 @@ Where the $f$ in question is sometimes referred to as the critic, test function 
 <h2>Choice of $D$</h2>
 
 <p>
-One of the most important modeling properties is the underlying divergence
-or distance between $P_R$ and $P_G$ thats being minimized.
-Often times this attribute is simply the consequence of other decisions.
-For instance maximum likelihood learning is asymptotically equivalent
-to minimizing $KL(P_r, P_{\theta})$ when both distributions admit densities and are
-absolutely continuous with respect to some measure $\mu$
+    One of the most important modeling properties is the underlying divergence
+    or distance between $P_R$ and $P_G$ thats being minimized.
+    Often times this attribute is simply left as the consequence of other decisions.
+    For instance maximum likelihood learning is asymptotically equivalent
+    to minimizing $KL(P_r, P_{\theta})$ when both distributions admit densities and are absolutely continuous with respect to some measure $\mu$.
 <dt-cite key="arjovsky_wgan" > </dt-cite>
 </p>
 
 <p>
-An interesting question is whether it makes sense take a reverse approach and begin by thinking of which underlying $D$ should be minimized, and making other decisions accordingly.
+    An interesting question is: does it makes sense take a reverse approach? Begin by thinking of which underlying $D$ should be minimized then make other decisions accordingly.
 </p>
 
 <p>
-To begin to think about this question lets review some of the different
-families of divergences and outline some models that relate to each
-family.
+    To begin answering this question let's review some of the different
+    families of divergences and outline some modeling approaches that relate to those families.
 </p>
 
 <p>
-First note that to qualify as a true distance a measure $\textit{d}$ must fulfill the following:
-<dt-cite key="bottou_geometry"> </dt-cite>.
-</p>
+    First note that to qualify as a true distance a measure $\textit{d}$ must fulfill the following:
+    <dt-cite key="bottou_geometry"> </dt-cite>.
+    </p>
 
-<blockquote class="l-body" style="border: 2px solid #666; padding: 10px; background-color: #ccc;">
-<ol>
-<li>$d(x, x)=0$ </li>
+    <blockquote class="l-body" style="border: 2px solid #666; padding: 10px; background-color: #ccc;">
+    <ol>
+    <li>$d(x, x)=0$ </li>
 
-<li>$x \neq y \implies d(x,y)>0$</li>
+    <li>$x \neq y \implies d(x,y)>0$</li>
 
-<li>$d(x,y) = d(y,x)$</li>
+    <li>$d(x,y) = d(y,x)$</li>
 
-<li>$d(x, y) \leq d(x, z) + d(z, y)$</li>
-</ol>
-</blockquote>
+    <li>$d(x, y) \leq d(x, z) + d(z, y)$</li>
+    </ol>
+    </blockquote>
 <p>
-
-When a choice $d$ fails to fulfill (3) or (4), we will call it a divergence.
-To encompass both divergences and distances we will refer to $D$ from our
-original definition of generative modeling.
+    When a measure $d$ fails to fulfill (3) or (4), its called a divergence<dt-cite key="bottou_geometry"> </dt-cite>. To encompass both divergences and distances we will refer to $D$ from our original definition of generative modeling for convenience.
 </p>
 
 <p>
-  There are many families of $D$ and more modeling procedures
-  that utilize them. Going through some well studied families of $D$ and showing some selected
-  examples of modeling approaches will hopefully show how many cases in
-  the literature fit together in practice.
+  There are many families of $D$ and many more modeling procedures
+  that utilize them. We will go through some well studied families of divergences/distributions and give choice examples of modeling approaches that minimize divergences/distances in those families.
 </p>
 
-<h3>F-divergences</h3>
-<p>A well studied class of divergences are the $F-divergences$.</p>
+<h3>f-divergences</h3>
+<p>A well studied class of divergences are the $f-divergences$.</p>
 
 <blockquote class="l-body" style="border: 2px solid #666; padding: 10px; background-color: #ccc;">
 
- Let $P$ and $Q$ be two probability distributions over a space
-$\Omega$ such that $P$ is absolutely continuous with respect to $Q$.
-Then, for a convex function $f$ such that $f(1)=0$ the
-<i>f-divergence</i> of $P$ from $Q$ is defined as:
+    Let $P$ and $Q$ be two probability distributions over a space
+    $\Omega$ such that $P$ is absolutely continuous with respect to $Q$.
+    Then, for a convex function $f$ such that $f(1)=0$ the
+    <i>f-divergence</i> of $P$ from $Q$ is defined as:
 
-$$D_f(P ||s Q) = \int_{\Omega} f(\frac{dP}{dQ})dQ$$
+    $$D_f(P ||s Q) = \int_{\Omega} f(\frac{dP}{dQ})dQ$$
 </blockquote>
 
-<p>Different choices of $f$ give us different F-divergences:</p>
+<p>Different choices of $f$ give us different f-divergences:</p>
 <p>
 <table>
 <tbody>
@@ -512,30 +470,26 @@ $$D_f(P ||s Q) = \int_{\Omega} f(\frac{dP}{dQ})dQ$$
 </tbody>
 </table>
 </p>
-<p>The most famous F-divergence is the Kl divergence which shows up all
+<p>The most famous F-divergence is the Kl-divergence (kullback-leibler divergence) which shows up all
 throughout machine learning and statistics</p>
 <p>
-$$KL(\mathbb{P_r}, \mathbb{P_g}) = \int \log(\frac{p_r(x)}{p_g(x)})p_r(x) d\mu(x) $$
-where both distributions $\mathbb{P_r}, \mathbb{P_g}$ are absolutely continuous
-and admit densities $p_r, p_q$ with respect to some measure $\mu$ defined on
-$\mathcal{X}$. <dt-cite key="arjovsky_wgan"> </dt-cite>
+    $$KL(\mathbb{P_r}, \mathbb{P_g}) = \int \log(\frac{p_r(x)}{p_g(x)})p_r(x) d\mu(x) $$ where both distributions $\mathbb{P_r}, \mathbb{P_g}$ are absolutely continuous and admit densities $p_r, p_q$ with respect to some measure $\mu$ defined on $\mathcal{X}$. <dt-cite key="arjovsky_wgan"> </dt-cite>
 </p>
 
 <p>
-In the case of generative modeling it often comes up because the maximum likelihood estimation problem
-$\max_{\theta \in \mathbb{R}}\sum_{i}^{m} \log P_{\theta}(x_i)$
-is equivalent to $KL(P_{r}, P_{\theta})$ when the parameterized density $P_{\theta}$ corresponds to the
-distribution $\mathbb{P_{\theta}}$ and $P_{r}$ is the density of $\mathbb{P_r}$.
+    In the context of generative modeling it often comes up because the maximum likelihood estimation problem: $\max_{\theta \in \mathbb{R}}\sum_{i}^{m} \log P_{\theta}(x_i)$ is equivalent to $KL(P_{r}, P_{\theta})$ when the parameterized density $P_{\theta}$ corresponds to the
+    distribution $\mathbb{P_{\theta}}$ and $P_{r}$ is the density of $\mathbb{P_r}$.
 </p>
 
 <p>
-One concern is that if the model density $P_\theta$ doesn't actually exist then it doesn't make sense to do maximum likelihood learning. Furthermore, if the data distribution $P_r$ doesn't actually admit a density, it doesn't make sense to do density estimation at all.
-<dt-cite key="arjovsky_principled"> </dt-cite>
+    One concern that we will revisit is that if the model density $P_\theta$ doesn't actually exist then it doesn't make sense to do maximum likelihood learning. Furthermore, if the data distribution $P_r$ doesn't actually admit a density, it doesn't make sense to do density estimation at all.
+    <dt-cite key="arjovsky_principled"> </dt-cite>
 </p>
 
 <p>
-To get some intuition for the KL divergence, consider this plot of
-values of $\log(\frac{P_{r}(x)}{P_g}(x))$ evaluated on a discrete grid. </p>
+    To get some intuition for the KL divergence, consider this plot of
+    values of $\log(\frac{p(i)}{q(i)})$ evaluated on a discrete grid.
+</p>
 
 <figure style ="width:30%; margin-top:20px; margin-bottom:20px; position:relative;">
 
@@ -543,71 +497,65 @@ values of $\log(\frac{P_{r}(x)}{P_g}(x))$ evaluated on a discrete grid. </p>
 </figure>
 
 
-<h3>F-gan</h3>
-<p><dt-cite key="nowozin_fgan">Nowozin et al</dt-cite> provide a general framework
-for doing learning by comparison using generic F-divergences. They build on earlier work by
-<dt-cite key="nguyen_estimation"> Nguyen et al </dt-cite>.
+<h3>f-gan</h3>
+<p><dt-cite key="nowozin_fgan">Nowozin et al</dt-cite>
+    provide a general framework for doing learning by comparison using generic f-divergences. They build on earlier work by <dt-cite key="nguyen_estimation"> Nguyen et al. </dt-cite> who were interested in estimating f-divergences from samples but not in the context of learning a model.
 </p>
 
 <p>
-Recall that an F divergences for two distributions $P$ and $Q$ with
-absolutely continuous densities $p$ and $q$ with respect to some measure $dx$ on a
-domain $\mathcal{X}$ is $$D_f(P || Q)\int_{\mathcal{X}}q(x)f(\frac{p(x)}{q(x)})dx$$
-where
-$f:\mathbb{R_{+}}\to \mathbb{R}$ is a convex, lower semicontinuous function satisfying f(1)=0.
+    Recall that an f-divergences for two distributions $P$ and $Q$ with
+    absolutely continuous densities $p$ and $q$ with respect to some measure $dx$ on a domain $\mathcal{X}$ is $$D_f(P || Q)\int_{\mathcal{X}}q(x)f(\frac{p(x)}{q(x)})dx$$
+    where $f:\mathbb{R_{+}}\to \mathbb{R}$ is a convex, lower semicontinuous function satisfying $f(1)=0$.
 </p>
 
 <p>
-<dt-cite key="nguyen_estimation"> Nguyen et al </dt-cite>  first note that the
-Fenchel conjugate of $f$ is $f^*(t)=\sup_{u \in dom_f}\{ut -f(u)\}$
-They then show that they can get a
-lower bound using the aforementioned conjugate:
-$$D_f(P||Q) \geq \sup_{T \in \mathcal{T}}(E_{x \sim P} [T(x)] - E_{x \sim Q}[f^*(T(x))])$$
-here $\mathcal{T}$ is any arbitrary function class $T: \mathcal{X} \to \mathbb{R}$
-</p>
-
-<p> This bound is tight when $T^*(x) = f'(\frac{p(x)}{q(x)})$ This can provide useful
-guidance when choosing a $T$ in practice.</p>
-
-<p> <dt-cite key="nowozin_fgan"> Nowozin et al</dt-cite>
-move from the fixed model case to the task of estimating
-the parameters for a generative model $Q$ given
-some true distribution $P$.
+    <dt-cite key="nguyen_estimation"> Nguyen et al. </dt-cite> first note that the Fenchel conjugate of $f$ is $f^*(t)=\sup_{u \in dom_f}\{ut -f(u)\}$
+    They then show that they can get a lower bound using that conjugate: $$D_f(P||Q) \geq \sup_{T \in \mathcal{T}}(E_{x \sim P} [T(x)] - E_{x \sim Q}[f^*(T(x))])$$
+    Where $\mathcal{T}$ is any arbitrary function class $T: \mathcal{X} \to \mathbb{R}$
 </p>
 
 <p>
-Say we parameterize Q with $\theta$: $Q_{\theta}$ which takes a random
-vector and returns a sample. Now take a function $T_{\omega}$
-that maps a sample to a scalar
+    This bound is tight when $T^*(x) = f'(\frac{p(x)}{q(x)})$, knowledge of which can provide useful guidance when choosing a $T$ in practice.
 </p>
 
 <p>
-Then estimation can be done by finding the saddle point
-of $$F(\theta, \omega)=E_{x \sim P }[T_{\omega}(x)] - E_{x \sim Q_{\theta}}[f^*(T_{\omega}(x))]$$
+    <dt-cite key="nowozin_fgan"> Nowozin et al</dt-cite>
+    move from the fixed model case to the task of estimating
+    the parameters for a generative model $Q$ given
+    some true distribution $P$.
 </p>
 
 <p>
-The final piece of this procedure is respecting the domain of $f*$, which is done
-by limiting the range of $T_{\omega}$ by using
-$T_{\omega}(x)=g_{f}(V_{\omega}(x))$ where $g_f: \mathbb{R} \to dom_{f^*}$
-is an activation function and $V_{\omega}$ is any function that maps
-$\mathcal{X} \to \mathbb{R}$.
-Now they can give a different suggested $g$ for every F-divergence
-to make sure $dom_{f^*}$ is respected.
+    Say we parameterize Q with $\theta$: $Q_{\theta}$ which takes a random
+    vector and returns a sample and define a function $T_{\omega}$
+    that maps a sample to a scalar.
 </p>
 
-<p> Plugging in $V_{\omega}$ gives the new objective $F(\theta, \omega)=
-E_{x\sim P} [g_{f}(V_{\omega}(x)) + E_{x\sim Q_{\theta}}[-f^*(g_f(V_{\omega}(x)))]$</p>
+<p>
+    Then estimation can be done by finding the saddle point
+    of $$F(\theta, \omega)=E_{x \sim P }[T_{\omega}(x)] - E_{x \sim Q_{\theta}}[f^*(T_{\omega}(x))]$$
+</p>
 
-<p>The authors give values for $g_f$ and $f^*$ for all the f-divergences</p>
+<p>
+    The final piece of this procedure is respecting the domain of $f^*$, which is done by limiting the range of $T_{\omega}$ by using
+    $T_{\omega}(x)=g_{f}(V_{\omega}(x))$ where $g_f: \mathbb{R} \to dom_{f^*}$
+    is an activation function and $V_{\omega}$ is any function that maps
+    $\mathcal{X} \to \mathbb{R}$. Now they can give a different suggested $g$ for every f-divergence to make sure $\text{dom}_{f^*}$ is respected.
+</p>
+
+<p>
+    Plugging in $V_{\omega}$ gives the new objective $F(\theta, \omega)=
+    E_{x\sim P} [g_{f}(V_{\omega}(x)) + E_{x\sim Q_{\theta}}[-f^*(g_f(V_{\omega}(x)))]$
+</p>
+
+<p>The authors give values for $g_f$ and $f^*$ for all the f-divergences.</p>
 
 
 <h3>Integral Probability Metrics</h3>
 <p>
-As we alluded to in an earlier section, another well studied family of
-divergences/distances are the Integral Probability Metrics. Since they have a
-natural connection to learning by comparison they are
-frequently used precisely in that context.
+    As we alluded to in an earlier section, another well studied family of
+    divergences/distances are the Integral Probability Metrics. Since they have a natural connection to learning by comparison they are
+    frequently used precisely in that context.
 </p>
 
 <blockquote class="l-body" style="border: 2px solid #666; padding: 10px; background-color: #ccc;">
@@ -619,13 +567,14 @@ $$
 $$
 </blockquote>
 
-<p> Different choices for the function class $\mathcal{F}$ give us different IPMs
-as shown in <dt-cite key="Sriperumbudur_ipm">Sriperumbudur et al</dt-cite> </p>
+<p>
+    Different choices for the function class $\mathcal{F}$ give us different IPMs as shown in <dt-cite key="Sriperumbudur_ipm">Sriperumbudur et al</dt-cite>
+</p>
 
 <p>
-Given a metric space $(M, \rho)$ with $\mathcal{A}$ being a Borel
-sigma algebra induced by metric topology. let $\mathcal{P}$ be the set
-of all Borel probability measures on $\mathcal{A}$
+    Given a metric space $(M,\rho)$ with $\mathcal{A}$ being a Borel
+    sigma algebra induced by metric topology. let $\mathcal{P}$ be the set
+    of all Borel probability measures on $\mathcal{A}$
 </p>
 <p>
 <table style="width: 675px;">
@@ -668,74 +617,78 @@ of all Borel probability measures on $\mathcal{A}$
 </p>
 
 <p>
-The Kantorovich metric, from the above table,
-has a dual form <dt-cite key="Sriperumbudur_ipm"></dt-cite>
-that is gaining increasing visibility within machine learning called the
-Wasserstein distance/metric: $W(\mathbb{P}, \mathbb{Q})$
+    The Kantorovich metric has a dual form <dt-cite key="Sriperumbudur_ipm"></dt-cite> that is gaining increasing visibility within machine learning called the Wasserstein distance/metric: $W(\mathbb{P}, \mathbb{Q})$
 </p>
 
 <p>
-The Wasserstein-1 distance is defined as $W(\mathbb{P_r}, \mathbb{P_g})=
-\inf_{\eta \in \prod(\mathbb{P_r}, \mathbb{P_g})} \mathbb{E}_{x,y} \sim \eta[|| x-y||]$
+    The Wasserstein-1 distance is defined as $W(\mathbb{P_r}, \mathbb{P_g})=
+    \inf_{\eta \in \prod(\mathbb{P_r}, \mathbb{P_g})} \mathbb{E}_{x,y} \sim \eta[||x-y||]$
 </p>
 
 <h4> Wasserstein GAN</h4>
-<p>In <dt-cite key="arjovsky_wgan"> Arjovsky et al</dt-cite>
-the authors develop a method for deep generative modeling through comparison style learning
-using the Wasserstein distance. They start by proving that it makes sense
-to use the Wasserstein distance in the context of neural networks and gradient
-descent.
+<p>
+    In <dt-cite key="arjovsky_wgan"> Arjovsky et al</dt-cite>
+    the authors develop a method for deep generative modeling through comparison style learning
+    using the Wasserstein distance. They start by proving that it makes sense
+    to use the Wasserstein distance in the context of neural networks and gradient
+    descent.
 </p>
 
 <p>
-Take a distribution $\mathbb{P_r}$ over some $\mathcal{X}$.
-Let $Z$ be a random variable over $\mathcal{Z}$, let $g: \mathcal{Z} \text{ X } \mathbb{R^d} \to \mathcal{X}$
-be a function parameterized by $\theta$ ($g_{\theta}$). Finally lets call the distribution of $g_{\theta}(Z)$
-$\mathbb{P}_{\theta}$ <dt-cite key="arjovsky_wgan">Arjovsky et al</dt-cite> show that $W(\mathbb{P}_r, \mathbb{P}_{\theta})$
-is continuous in $\theta$ if $g$ is, and that if $g$ is locally Lipshitz then $W(\mathbb{P_r}, \mathbb{P_{\theta}})$ is too. Finally if
-$g_{\theta}$ is a neural network and theres a prior over $p(z)$ such that $\mathbb{E}_{z \sim p(z)}[|z|]< \infty$ then all
-the above are still true</p>
-
-<p>We can now use the comparison based learning approach to optimize the Wasserstein loss but for the fact that the infimum is not computationally tractable. Luckily the Wasserstein distance can be re-written as
-$$ W(\mathbb{P_r}, \mathbb{P_{\theta}})=\sup_{|f|_{L \leq 1}} \mathbb{E}_{x \sim \mathbb{P_r}}[f(x)]-\mathbb{E}_{x \sim \mathbb{\theta}}[f(x)]$$
-where we take a instead take a supremum
-over 1-Lipschitz functions</p>
-
-<p>If we relax this to K Lipschitz functions $||f|_{L}|\leq K$ then the authors of <dt-cite key="arjovsky_wgan"></dt-cite> suggest that the following makes sense:
-  $$max_{w \in W}\mathbb{E}_{x \sim \mathbb{P}_r}[f_{w}(x)]- \mathbb{E}_{z \sim p(z)}[f_w(g_{\theta}(z))]$$
-
- The authors prove that if we can find $w \in W$ for which the supremum in the original formulation is achieved, then you we would get $W(\mathbb{P}_r, \mathbb{P_{\theta}})$ up to some constant K.
-
-</p>
-
-<p> Learning is then done by comparison with the small twist that we clamp
-the weights $W$ such that they lie in a fixed box so that$f_w$ is guaranteed to be K-Lipschitz
+    Take a distribution $\mathbb{P_r}$ over some $\mathcal{X}$.
+    Let $Z$ be a random variable over $\mathcal{Z}$, let $g:\mathcal{Z} \text{ X } \mathbb{R^d} \to \mathcal{X}$
+    be a function parameterized by $\theta$ ($g_{\theta}$). Finally lets call the distribution of $g_{\theta}(Z)$
+    $\mathbb{P}_{\theta}$ <dt-cite key="arjovsky_wgan">Arjovsky et al</dt-cite> show that $W(\mathbb{P}_r, \mathbb{P}_{\theta})$
+    is continuous in $\theta$ if $g$ is continuous in $\theta$. They also show that if $g$ is locally Lipshitz then $W(\mathbb{P_r}, \mathbb{P_{\theta}})$ is as well. Finally if
+    $g_{\theta}$ is a neural network and there's a prior over $p(z)$ such that $\mathbb{E}_{z \sim p(z)}[|z|]< \infty$ then all of
+    the above claims are still true.
 </p>
 
 <p>
-    <dt-cite key="arjovsky_wgan"> Arjovsky et al </dt-cite>
+    We can now use the comparison based learning approach to optimize the Wasserstein loss, but for the fact that the infimum is not computationally tractable. Luckily the Wasserstein distance can be re-written as
+    $$ W(\mathbb{P_r}, \mathbb{P_{\theta}})=\sup_{|f|_{L \leq 1}} \mathbb{E}_{x \sim \mathbb{P_r}}[f(x)]-\mathbb{E}_{x \sim \mathbb{\theta}}[f(x)]$$
+    where we take take a supremum
+    over 1-Lipschitz functions instead.
+</p>
+
+<p>
+    If we relax this to K Lipschitz functions $||f|_{L}|\leq K$ then the authors of <dt-cite key="arjovsky_wgan"></dt-cite> suggest that the following makes sense:
+  $$\max_{w \in W}\mathbb{E}_{x \sim \mathbb{P}_r}[f_{w}(x)]- \mathbb{E}_{z \sim p(z)}[f_w(g_{\theta}(z))]$$
+
+  The authors prove that if we can find $w \in W$ for which the supremum in the original formulation is achieved, then you we would get $W(\mathbb{P}_r, \mathbb{P_{\theta}})$ up to some constant K.
+
+</p>
+
+<p>
+    Learning is then done by comparison with the small twist that we clamp
+    the weights $W$ such that they lie in a fixed box so that$f_w$ is guaranteed to be K-Lipschitz
+</p>
+
+<p>
+    <dt-cite key="arjovsky_wgan"> Arjovsky et al. </dt-cite>
     point out a lot of useful properties of the Wasserstein distance
-    not shared by F-divergences. They argue
-    that if one wants to use an F-divergence, the data distribution $P_r$
+    not shared by f-divergences (at least KL, jensen-shannon, and total variation). They argue
+    that if one wants to use an f-divergence, the data distribution $P_r$
     and the model distribution $P_{\theta}$ must both be absolutely continuous
     with respect to some measure $\mu$ and admit densities. If this
     is not the case, for instance when the data distribution lies on a low dimensional manifold,
-    or the model density does not exist, then an F-divergence doesn't make sense.
-    This is usually solved in practice by injecting noise into the model.
-    They also note that this noise will necessarily affect the sharpness of the final samples.
+    or the model density does not exist, then an f-divergence doesn't make sense. They also point out that this is often true in cases like the space of natural images.
+    This issue is usually solved in practice by injecting noise into the model which <dt-cite key="arjovsky_wgan"> Arjovsky et al. </dt-cite>
+    note will necessarily affect the sharpness of the final samples.
 </p>
 <p>
-    Another claim made in <dt-cite key="arjovsky_wgan"> Arjovsky et al </dt-cite> is
+    Another claim made by <dt-cite key="arjovsky_wgan"> Arjovsky et al. </dt-cite> is
     that the Wasserstein distance provides stronger guarantees for
     convergence when doing estimation by comparison (GAN) style learning than the jensen-shannon, KL or total variation.
-    They show via an example and through a proof that the Wasserstein distance
+    They show via an example, and through a proof, that the Wasserstein distance
     induces a weaker topology than KL, JS or TV divergences, and thus
     provide more favorable convergence properties.
 </p>
 
+<h4>MMD GAN</h4>
 <p>
     The maximum mean discrepancy has also been used in conjunction with
-    comparison style learning as in <dt-cite key="Li_mmdgan"> </dt-cite>
+    comparison style learning as in <dt-cite key="Li_mmdgan"> Li et al.</dt-cite>
 </p>
 <p>
     <dt-cite key="Li_mmdgan"> Li et al</dt-cite>
@@ -767,12 +720,12 @@ the weights $W$ such that they lie in a fixed box so that$f_w$ is guaranteed to 
     To approximate this the authors use neural networks to
     approximate $g_{\theta}$ and $f_{\phi}$
 
-    Since the gradient $\nabla_{\theta}(max_{\phi}f_{\phi} \circ g_{\theta})$ has to be bounded
-    they clip $\phi$. Finally since $f_{\phi}$ has to be injective they use the fact
+    Since the gradient $\nabla_{\theta}(\max_{\phi}f_{\phi} \circ g_{\theta})$ has to be bounded,
+    they clip $\phi$. To ensure $f_{\phi}$ is injective they use the
     the fact that for an injective function f there must be an inverse $f^{-1}$ such
     that $f^-1(f(x))=x, \forall x \in \mathcal{X}$.
     Also: $f^-1{f(g(z))}=g(z) \forall z \in \mathcal{Z}$. They choose to approximate this with
-    an autoencoder. So the discriminator $f_{\phi}$is broken into $\phi={\phi_e, \phi_d}$
+    an autoencoder. So the parameters of the discriminator $f_{\phi}$ are seperated into $\phi={\phi_e, \phi_d}$
     for the encoder and decoder respectively.
 
     The relaxed objective is then :
@@ -785,21 +738,24 @@ the weights $W$ such that they lie in a fixed box so that$f_w$ is guaranteed to 
     learning discussed earlier.
 </p>
 
+<h4>Cramer GAN</h4>
 <p>
-    A final example we will look at is  with the Cramer distance as introduced in  <dt-cite key="bellemare_cramer"> </dt-cite>.
+    A final example we will look at is  with the Cramer distance as introduced by  <dt-cite key="bellemare_cramer">Bellemare et al. </dt-cite>.
 </p>
 
 <p>
     The Cramer distance for two distributions $\mathbb{P}, \mathbb{Q}$
     over $\mathbb{R}$ with cumulative distribution functions $F_P, F_Q$ respectively
-    is $l^2_2(P,Q):= \int_{-\infty}^{\infty} (F_P(x) - F_Q(x))^2 dx$
+    is $$l^2_2(P,Q):= \int_{-\infty}^{\infty} (F_P(x) - F_Q(x))^2 dx$$
     The square root of which is a proper metric:
     $$l_p(P, Q):= (\int_{-\infty}^{\infty}|F_P(x) - F_Q(x)|^p dx)^\frac{1}{p} $$
 </p>
 <p>
-    This is equivalent to the Wasserstein metric when p=1. The integral
-    probability metric form of the Cramer distance is the dual form:
-    $l_p(P,Q)= \sup_{f \in \mathbb{F_q}} |\mathbb{E_{x \sim P}} f(x) - \mathbb{E_{x \sim Q}}f(x)| $
+    This is equivalent to the Wasserstein metric when p=1.
+</p>
+<p>
+    The Integral Probability Metric form of the Cramer distance is the dual form:
+    $$l_p(P,Q)= \sup_{f \in \mathbb{F_q}} |\mathbb{E_{x \sim P}} f(x) - \mathbb{E_{x \sim Q}}f(x)| $$
     where $\mathbb{F_q := \{f:f \text{ is absolutely continuous}, || \frac{df}{dx}||} \leq 1\}$ and
     $p^{-1} + q^{-1} =1$
 </p>
@@ -816,40 +772,47 @@ the weights $W$ such that they lie in a fixed box so that$f_w$ is guaranteed to 
     $$f^*(x):=\mathbb{E}||x- Y'||_2 - \mathbb{E}||x - X'||_2$$
     thus $$\mathcal{E} = \mathbb{E}f^*(X)- \mathbb{E}f^*(Y)$$
 
+</p>
+<p>
     Now to use comparison style training we define the two losses for the
-    generator and discriminator:
+    generator and discriminator and follow the following procedure:
+</p>
+<p>
+    First sample the following:
+    $$x_r \sim P$$
+    $$x_g, x_g \sim Q$$
+    $$\epsilon \sim \text{Uniform}(0,1)$$
 
-    With real sample $x_r \sim P$, and two generated samples $x_g, x_g \sim Q$
-    and $\epsilon \sim Uniform(0,1)$
-    take $\hat{x} = \epsilon x_r + (1- \epsilon) x_g$
-    Take a discriminator (or critic) $f(x) = ||h(x) - h(x^{'}_g)||_2 - ||h(x)||_2$
-    The generator loss
+    Let $$\hat{x} = \epsilon x_r + (1- \epsilon) x_g$$
+    Take a discriminator (or critic) $$f(x) = ||h(x) - h(x^{'}_g)||_2 - ||h(x)||_2$$
+
+    The generator loss is then:
     $$L_g = ||h(x_r) -h(x_g) ||_2 + ||h(x_r)-h(x'_g)||_2- ||h(x_g)-h(x'_g)||_2$$
 
-    A surrogate generator loss:
+    A surrogate generator loss is provided as:
     $$L_{surrogate}=f(x_r)-f(x_g)$$
     Then the discriminator/critic loss is
-    $L_{critic}= - L_{surrogate}+ \lambda(||\nabla_{\hat{x}} f(\hat{x})||_2 -1)^2$
+    $$L_{critic}= - L_{surrogate}+ \lambda(||\nabla_{\hat{x}} f(\hat{x})||_2 -1)^2$$
 </p>
 
 <p>
-    To motivate using the Cramer distance the authors give 3 ideal desiderata for any divergence to obey and show that the Cramer distance satisfies them while the KL and Wasserstein do not.
+    To motivate using the Cramer distance <dt-cite key="bellemare_cramer"> Bellemare et al</dt-cite> give 3 ideal desiderata that they claim any divergence should obey and show that the Cramer distance satisfies them while the KL and Wasserstein do not.
 </p>
 <p>
-        <dt-cite key="bellemare"> Bellemare et al</dt-cite>
-        List 3 ideal qualities that a divergence should obey as:
         <ol>
-            <li>Scale sensitive</li>
+            <li><b>Scale sensitive</b>
             For two random variable X, Y with distributions P, Q
             and divergence d $d(X,Y):=d(P,Q)$, d is scale sensitive
             of order $\beta$ if there exists a $\beta>0$ such that for
-            all X, Y and a real value $c>0$ $$d(cX, cY) \leq |c|^{\beta}d(X, Y)$$
-            <li>Sum invariant </li>
-            A divergence $d$ is sum invariant if whenever A is independent from X, Y $d(A + X, A + Y) \leq d(X,Y)$
-            <li> Unbiased sample gradients</li>
-            given $X_m := X_1 .. X_m $ drawn from a distribution P, the empirical distribution
+            all X, Y and a real value $c>0$ $$d(cX, cY) \leq |c|^{\beta}d(X, Y)$$</li>
+            <li><b>Sum invariant:</b>
+            A divergence $d$ is sum invariant if whenever A is independent from X, Y $$d(A + X, A + Y) \leq d(X,Y)$$</li>
+
+            <li> <b>Unbiased sample gradients:</b>
+            Given $X_m := X_1 .. X_m $ drawn from a distribution P, the empirical distribution
             $\hat{P_m}:= \frac{1}{m}\sum_{i=1}^m \delta_X$ and a distribution $Q_{\theta}$
             $$\mathbb{E_{x_m \sim P}} \nabla_{\theta}l^2_2(\hat{P_m}, Q_{\theta}) = \nabla_{\theta}l^2_2(P, Q_{\theta})$$
+            </li>
         </ol>
 
 </p>
@@ -896,12 +859,11 @@ the weights $W$ such that they lie in a fixed box so that$f_w$ is guaranteed to 
 <h3>Experiments</h3>
 <p>
     The divergence that ends up being minimized has a big impact on the final learned model.
-    Extending experiments done in <dt-cite key="theis_note"> Theis et al </dt-cite>
+    Extending experiments done in <dt-cite key="theis_note"> Theis et al. </dt-cite>
     we show here plots of an Isotropic Gaussian trained to fit data generated
-    from a random mixture of gaussians using various choices of $D$ .
-    Though things are very different in high dimensions, we can start seeing the kinds
-    of trade offs being made by visualizing this simple setting and hopefully gain some
-    intuition.
+    from a random mixture of gaussians using various choices of $D$ in the learning by comparison style.
+    Though things are assuradly different in high dimensions, we can start seeing the kinds
+    of trade offs being made by visualizing this simple example.
 </p>
 <p>
     <div class = "row">
@@ -942,11 +904,12 @@ the weights $W$ such that they lie in a fixed box so that$f_w$ is guaranteed to 
 <h2>Downstream tasks and desiderata, a qualitative look </h2>
 
 <p>
-    We've discussed many different divergences/distances that might be minimized between the approximating distribution and the real data generating distribution. Since this divergence/distance plays such an important role in defining the qualities of the generative model it seems like it would make sense to center the generative modeling process around its choice.
+    We've discussed some different divergences/distances that might be minimized between the approximating distribution and the real data generating distribution. Since this divergence/distance plays such an important role in defining the qualities of the generative model it seems like it would make sense to center the generative modeling process around its choice.
 
 </p>
+<p>This would require specifying what properties are desired from a given divergence/distance.</p>
 <p>
-    Any desiderata for $D$ is closely tied to the downstream application that the generative model is going to be used for.
+    Any desiderata for $D$ is going to be closely tied to the downstream application that the generative model is going to be used for.
     Different tasks have different evaluative criteria that in turn demand different things from $D$.
 </p>
 
@@ -962,7 +925,7 @@ the weights $W$ such that they lie in a fixed box so that$f_w$ is guaranteed to 
 </p>
 
 <p>
-    That's easier said than done as it is very difficult to determine the
+    That's easier said than done, as it is very difficult to determine the
     task level desiderata ($DT_{\mathcal{T}}$) as well as to convert them into divergence level desiderata ($DD_{\mathcal{T}}$). Its also difficult to phrase the properties $p_{1..n}, q_{1...n}, z_{1..n}$ formally.
 </p>
 
@@ -971,7 +934,7 @@ the weights $W$ such that they lie in a fixed box so that$f_w$ is guaranteed to 
 </p>
 
 <p>
-    First lets look at the general divergence level desiderata $DDG$, taking some from <dt-cite key="bellemare_cramer"> </dt-cite>.
+    First lets look at some divergence level desiderata $DDG$ that might be expected from all distributions, inspired by <dt-cite key="bellemare_cramer"> </dt-cite> and <dt-cite key="zolotarev_metric"> </dt-cite>.
 </p>
 
 <blockquote class="l-body" style="border: 2px solid #666; padding: 10px; background-color: #ccc;">
@@ -988,6 +951,7 @@ the weights $W$ such that they lie in a fixed box so that$f_w$ is guaranteed to 
 
 </blockquote>
 
+<h2>Downstream applications</h2>
 
 <p> There are many possible reasons one might need a generative model.
 Some downstream applications are:</p>
@@ -1028,7 +992,7 @@ Some downstream applications are:</p>
     <ol>
         <li>Encourages realistic looking samples</li>
         <li>Doesn't drop modes of the data distribution</li>
-        <li>Respects the nature of the data distribution to model it accuratly</li>
+        <li>Respects the nature of the data distribution to model it accurately</li>
     </ol>
 </blockquote>
     <p>
@@ -1048,7 +1012,7 @@ Some downstream applications are:</p>
     </p>
 
     <p>
-        What about using F-divergences with comparison style learning? As is done in <dt-cite key="nowozin_fgan"> F-gans?</dt-cite> and discussed earlier.
+        What about using f-divergences with comparison style learning? As is done in <dt-cite key="nowozin_fgan"> F-gans?</dt-cite> and discussed earlier.
     </p>
 
     <p>
@@ -1057,14 +1021,14 @@ Some downstream applications are:</p>
 
     <p>
         So at least for images we have narrowed down the most promising choice to comparison style training with an
-        Integral Probability Metric. Now there are just the $DDG$ to consider.
+        Integral Probability Metrics. Now there are just the $DDG$ to consider.
     </p>
-    <p> <dt-cite key="arjovsky_wgan">Arjovsky et al</dt-cite> show that the Wasserstein distance has favorable convergence properties and is easy to train. So the wasserstein distance satisfies all the $DDG$ except 2, <d-cite key="mikolaj_demystifying"> </d-cite>.
+    <p> <dt-cite key="arjovsky_wgan">Arjovsky et al</dt-cite> show that the Wasserstein distance has favorable convergence properties and is easy to train. So the wasserstein distance satisfies all the $DDG$ except 2, <d-cite key="mikolaj_demystifying"> </d-cite>
      </p>
 
     <p>
         Using the MMD <dt-cite key="Li_mmdgan"> </dt-cite> results in samples that are qualitatively similar to the Wasserstein gan, but
-        <dt-cite key="Li_mmdgan"> Li et al </dt-cite> claim higher inception scores than WGAN with the Cifar-10 dataset. MMD satisfies all the $DDG$ except 2. <d-cite key="mikolaj_demystifying"> </d-cite>
+        <dt-cite key="Li_mmdgan"> Li et al. </dt-cite> claim higher inception scores than WGAN with the Cifar-10 dataset. MMD satisfies all the $DDG$ except 2. <d-cite key="mikolaj_demystifying"> </d-cite>
     </p>
 
     <p>
@@ -1085,14 +1049,13 @@ Some downstream applications are:</p>
     <p>
         Deep generative models have been primarily evaluated using image data which has lead much of the empirical and theoretical work to "overfit" to this type of data.
         <p>
-            One thing we know is that sampling from an arbritraily high dimensional density
-            might be prohibitively difficult <dt-cite key="neal_annealed"> </dt-cite> <dt-cite key="arjovsky_wgan"></dt-cite>.
+            One thing that is known is that sampling from an arbritraily high dimensional density gets very difficult <dt-cite key="neal_annealed"> </dt-cite> <dt-cite key="arjovsky_wgan"></dt-cite>.
         </p>
 
     </p>
 
     <p>
-        Now lets consider ($DD$ 2): diversity in our generated samples .
+        Now lets consider ($DD$ 2 which corresponds to $DDT$ 2): not dropping modes, and diversity in the generated samples respectively.
     </p>
     <p>
         We know that the KL divergence and maximum likelihood learning heavily penalizes for not covering parts of the data.
@@ -1121,11 +1084,11 @@ Some downstream applications are:</p>
     </p>
 
     <p>
-        Implicit models that model the generative process as a differentiable
-        black box sampler of data don't typically have the property of
+        Implicit models that express the generative process as a differentiable
+        black box sampler don't typically have the property of
         possessing any interpretable components that are learned from data.
         Furthermore there is no natural way to do backward inference $p(z|x)$ other
-        than optimization based schemes $\min_{z}|| g_{\theta}(z) - x ||$ which
+        than optimization based schemes $\min_{z}|| g_{\theta}(z) - x ||_2$ which
         aren't very satisfactory.
     </p>
 
@@ -1133,19 +1096,22 @@ Some downstream applications are:</p>
         The most mature body of inference schemes in latent variable modeling
         comes from likelihood based techniques like variational
         inference. If instead of finding the KL divergence between the approximating and
-        exact posterior $KL(q(z) || p(z|x)$ we use other divergences, this leads to
+        exact posterior $KL(q(z) || p(z|x))$ we use other divergences, this leads to
         different approximate inference algorithms like
-        expectation propagation and belief propagation, but these have not been
-        as well studied in the context of deep generative modeling and do not enjoy
-        many of the asymptotic properties that variational methods do (like lower bounding
-        the true log likelihood) <dt-cite key="yingzhen_renyi"> </dt-cite>
+        expectation propagation and belief propagation. Though it would be interesting to see how these could be applied to deep generative modeling they have not been
+        as well studied in this context thus far. They also do not enjoy
+        many of the asymptotic properties that variational methods do (like lower bounding the true log likelihood) <dt-cite key="yingzhen_renyi"> </dt-cite>
     </p>
 
     <h3>Modeling physical phenomena</h3>
     <p>
-        When modeling physical phenomena there are many different cases to consider.
-        In some situations, the causal story of how a sample is generated is known to you
-        or fixed in advance (particle physics).
+        When modeling physical phenomena there are many different factors to consider.
+    </p>
+    <p>
+        In some situations, the causal story of how a sample is generated is known or fixed in advance (particle physics).
+    </p>
+
+    <p>
         In other situations some of the causal mechanism that
         generated the data may be fully known but there are free parameters that need
         to be learned from data.
@@ -1165,7 +1131,7 @@ Some downstream applications are:</p>
     <h3>Representation learning</h3>
     <p>
         Though this is one of the most interesting applications of deep generative models,
-        its also the hardest to quantify. Loosely speaking we can say that we want to
+        it's also the hardest to quantify. Loosely speaking we can say that we want to
         learn flexible, reusable representations of complex high dimensional
         data. All forms of generative modeling seem promising for this at some level or another.
 
@@ -1185,7 +1151,7 @@ Some downstream applications are:</p>
     <p>
         If it is desirable that the representation learned is structured and interpretable ($DDT{3,4}$)
         then latent variable models seem appropriate.
-        <dt-cite key="siddharth_semi"> Siddharth et al </dt-cite> show how to learn disentangled representations from data using a extended VAE type architecture. They use variational inference for learning.
+        <dt-cite key="siddharth_semi"> Siddharth et al. </dt-cite> show how to learn disentangled representations from data using a extended VAE type architecture. They use variational inference for learning.
         <dt-cite key="johnson_graphical"> Johson et al</dt-cite> combine graphical models and neural networks to learn structured representations. They also use variational inference for learning.
     </p>
 
@@ -1200,27 +1166,29 @@ Some downstream applications are:</p>
         learning. Since this is a nascent application category for deep generative models. Lets just take a look at an example to get some idea of how it generative models are being used in this context.
     </p>
     <p>
-        <dt-cite key="weber_imagination"> Weber et al </dt-cite> Make use of
+        <dt-cite key="weber_imagination"> Weber et al. </dt-cite> Make use of
         environmental models, or models that can simulate imagined future
         trajectories.
-        Chosen actions in a particular rollout follow a policy $\hat{\pi}$
-        The authors call the combination of policy and environment model the imagination
-        core module.
+        Chosen actions in a particular rollout follow a policy $\hat{\pi}$.
+    </p>
+
+    <p>
+        The authors call the combination of policy and environment model the imagination core module.
         The core module might predict $n$ trajectories $\mathcal{\bar{T_i}... \mathcal{\bar{T_n}}}$
         that consist of features $(\bar{f_{t+1}}, ..., \bar{f_{t+\mathcal{T}}})$
         where $t$ is the current time and $\mathcal{T}$ is the length of the rollout
         and $\hat{f_t+i}$ is the output of the environment model. They also
-        use a rollout encoder $\mathcal{E}$ that takes an imagined rollout
+        use a "rollout encoder" $\mathcal{E}$ that takes an imagined rollout
         and emits an embedding $e_i = \mathcal{E(\mathcal{\hat{T_i}})}$.
-        They summarize all of this by using an aggregator $A$ to convert embeddings
-        into a single code $c_{ia}= \mathcal{A}(e_{1}, ... e_{n})$
-        Then policy based RL  happens like usual, except by combining a model free-path
-        and an imagined one. The output, which combines the model free path
-        and the imagined one is a policy vector $\pi$ and a value $V$. The
-        environment model defines a distribution that
+        They summarize all of this by using an additional "aggregator" $A$ which converts embeddings into a single code $c_{ia}= \mathcal{A}(e_{1}, ... e_{n})$
+    </p>
+    <p>
+        Then policy learning happens like usual, except by combining a model free-path and an imagined one. The output, which combines the model free path, and the imagined one is a policy vector $\pi$ and a value $V$.
+    </p>
+    <p>
+        The environment model defines a distribution that
         is trained using negative log likelihood loss, which is equivalent to
-        minimizing the KL divergence. The training data came from partially pre-trained
-        agents, and the environment model was pre-trained and fixed before experiments.
+        minimizing the KL divergence.
     </p>
 
 <h2>Conclusion</h2>
@@ -1238,8 +1206,9 @@ Some downstream applications are:</p>
 <h3>Future work</h3>
 <p>
     An interesting area of future work would be to create formal
-    task level desiderata for various down stream applications and convert them into likewise formal divergence level desiderata and showing which divergences/distance meet those desiderata.
+    task level desiderata for various down stream applications and convert them into likewise formal divergence level desiderata. Then if it could be proven that sets of divergences/distances meet those divergence level desiderata, it would be easier to see how they relate to each other in the context of a particular application.
 </p>
+
 
 </dt-article>
 
@@ -1480,4 +1449,38 @@ author={Mohamed, Shakir and Rezende, Danilo}, year={2018}, month={Apr}}
     Year = {2018},
     Eprint = {arXiv:1801.01401},
     }
+
+@inproceedings{rajesh_bbvi,
+      author    = {Rajesh Ranganath and
+                   Sean Gerrish and
+                   David M. Blei},
+      title     = {Black Box Variational Inference},
+      booktitle = {Proceedings of the Seventeenth International Conference on Artificial
+                   Intelligence and Statistics, {AISTATS} 2014, Reykjavik, Iceland, April
+                   22-25, 2014},
+      pages     = {814--822},
+      year      = {2014},
+      crossref  = {DBLP:conf/aistats/2014},
+      url       = {http://jmlr.org/proceedings/papers/v33/ranganath14.html},
+      timestamp = {Tue, 12 Jul 2016 21:51:16 +0200},
+      biburl    = {https://dblp.org/rec/bib/conf/aistats/RanganathGB14},
+      bibsource = {dblp computer science bibliography, https://dblp.org}
+    }
+    @article{gemici_normalizing,
+  author    = {Mevlana C. Gemici and
+               Danilo Jimenez Rezende and
+               Shakir Mohamed},
+  title     = {Normalizing Flows on Riemannian Manifolds},
+  journal   = {CoRR},
+  volume    = {abs/1611.02304},
+  year      = {2016},
+  url       = {http://arxiv.org/abs/1611.02304},
+  archivePrefix = {arXiv},
+  eprint    = {1611.02304},
+  timestamp = {Wed, 07 Jun 2017 14:42:17 +0200},
+  biburl    = {https://dblp.org/rec/bib/journals/corr/GemiciRM16},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{zolotarev_metric, title={Metric Distances In Spaces Of Random Variables And Their Distributions}, volume={30}, DOI={10.1070/sm1976v030n03abeh002280}, number={3}, journal={Mathematics of the USSR-Sbornik}, author={Zolotarev, V M}, year={1976}, pages={373–401}}
 </script>
