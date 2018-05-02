@@ -53,9 +53,9 @@ class Generator(nn.Module):
     def __init__(self, data):
         super(Generator, self).__init__()
         mu = np.mean(data, 0)
-        std = np.std(data - mu)
-        self.mu = nn.Parameter(torch.Tensor(mu))
+        std = [float(np.std(data - mu))]
 
+        self.mu = nn.Parameter(torch.Tensor(mu))
         self.std = nn.Parameter(torch.Tensor(std))
 
     def get_params(self):

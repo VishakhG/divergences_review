@@ -65,7 +65,6 @@ if torch.cuda.is_available():
     one = one.cuda()
     neg_one = neg_one.cuda()
     fixed_noise = fixed_noise.cuda()
-    
 
 for epoch_i in range(n_epochs):
     if epoch_i % 10 == 0:
