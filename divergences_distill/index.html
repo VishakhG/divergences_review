@@ -313,7 +313,7 @@ Posterior sample $$z=\mathcal{N}(\eta)$$
 </p>
 
 <p>
-    Let the ratio of the two distributions be $r_{\phi} = \frac{q}{p^*}$ such that when $r_{\phi}$ is 1 they are identical. We can try and develop a learning procedure that attempts to improve $r_{\phi}$ by alternating between <i>Comparison</i> and <i>Estimation</i> steps.
+    Let the ratio of the two distributions be $r_{\phi} = \frac{p^*}{q}$ such that when $r_{\phi}$ is 1 they are identical. We can try and develop a learning procedure that attempts to improve $r_{\phi}$ by alternating between <i>Comparison</i> and <i>Estimation</i> steps.
 </p>
 
 <p>
@@ -332,8 +332,8 @@ Posterior sample $$z=\mathcal{N}(\eta)$$
 
     Using Bayes theorem to invert the conditional probabilities gives:
     $$\frac{p(y=+1|\boldsymbol{x})p(x)}{p(y=+1)} / \frac{p(y=-1|\boldsymbol{x})p(x)}{p(y=-1)}$$
-    This allows us to equate $r_{\phi}$ with the class probability ratio
-    $$\frac{p(y=1|x)}{p(y=-1|x)}$$
+    This gives:
+    $$r_{\phi} \propto \frac{p(y=1|x)}{p(y=-1|x)}$$
 
     Next assume a scoring function (discriminator)
     $$D_{\theta}(\boldsymbol{x}) = p(y=+1|\boldsymbol{x})$$
